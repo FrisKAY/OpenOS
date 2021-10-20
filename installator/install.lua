@@ -196,7 +196,7 @@ do
   --Качаем язык
   ecs.info("auto", "auto", " ", " Installing version packages...")
 
-  versiondownloads = getFromGitHubSafely(GitHubUserUrl .. "FrisKAY/OpenOS/" .. _G.OSVers.version .. "/Applications.txt", "Applications.txt")
+  versiondownloads = getFromGitHubSafely(GitHubUserUrl .. "FrisKAY/OpenOS/main/" .. _G.OSVers.version .. "/Applications.txt", "Applications.txt")
   
 end
 
