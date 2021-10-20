@@ -3,17 +3,16 @@
   GitHubApplicationListURL = "https://raw.githubusercontent.com/FrisKAY/OpenOS/main/1.6.0/Applications.txt",
   ----------------------------------------------------- Все для самой ОС --------------------------------------------------------------------------
   {
-    name="bin-test/address.lua",
-    url="FrisKAY/OpenOS/main/1.6.0/bin/address.lua",
+    name="usr/misc/greetings.txt",
+    url="FrisKAY/OpenOS/main/1.6.0/usr/misc/greetings.txt",
     type="Script",
     forceDownload=true,
     version=1.6.0,
   },
   {
-    name="usr/misc/greetings.txt",
-    url="FrisKAY/OpenOS/main/1.6.0/usr/misc/greetings.txt",
+    name="bin-test/address.lua",
+    url="FrisKAY/OpenOS/main/1.6.0/bin/address.lua",
     type="Script",
-    forceDownload=true,
     version=1.6.0,
   },
 }

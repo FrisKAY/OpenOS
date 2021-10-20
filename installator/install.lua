@@ -211,30 +211,23 @@ do
   image.draw(math.ceil(xSize / 2 - 30), yWindow + 2, imageLanguages)
 
   --кнопа
-  drawButton("Select Addons",false)
+  drawButton("Select Languages",false)
 
-  waitForClickOnButton("Select Addons")
+  waitForClickOnButton("Select Languages")
 
   local data = ecs.universalWindow("auto", "auto", 36, 0x262626, true,
     {"EmptyLine"},
-    {"CenterText", ecs.colors.orange, "Select Addons"},
+    {"CenterText", ecs.colors.orange, "Select Languages"},
     {"EmptyLine"},
     {"Select", 0xFFFFFF, ecs.colors.green, "Russian", "English"},
     {"EmptyLine"},
-    {"CenterText", ecs.colors.orange, "Download Addons packs"},
-    {"EmptyLine"},
-    {"Switch", 0xF2B233, 0xffffff, 0xFFFFFF, "null", false},
-    {"EmptyLine"},
-    {"Switch", 0xF2B233, 0xffffff, 0xFFFFFF, "null", false},
-    {"EmptyLine"},
-    {"Switch", 0xF2B233, 0xffffff, 0xFFFFFF, "null", false},
+	{"Switch", 0xF2B233, 0xffffff, 0xFFFFFF, "Download Test", false},
     {"EmptyLine"},
     {"Button", {ecs.colors.orange, 0x262626, "->"}}
   )
-  downloadAllApps, downloadWallpapers, showHelpTips = data[2], data[3], data[4]
 
   --УСТАНАВЛИВАЕМ НУЖНЫЙ ЯЗЫК
-  _G.OSSettings = { showHelpOnApplicationStart = showHelpTips, language = data[1] }
+  _G.OSSettings = { language = data[1] }
   ecs.saveOSSettings()
 
   --Качаем язык
@@ -333,15 +326,10 @@ do
   ecs.progressBar(xBar, yBar, barWidth, 1, 0xcccccc, ecs.colors.blue, 0)
   os.sleep(timing)
 
-  local thingsToDownload = {}
-
+ local thingsToDownload = {}
   for i = 1, #applications do
     if 
-      (applications[i].type == "Wallpaper" and downloadWallpapers)
-      or
-      (applications[i].type == "Application" and (downloadAllApps or applications[i].forceDownload))
-      or
-      (applications[i].type == "Library" or applications[i].type == "Icon")
+      (applications[i].type == "Script" and downloadtest)
       or
       (applications[i].forceDownload)
     then
@@ -357,7 +345,7 @@ do
     local percent = app / #thingsToDownload * 100
     ecs.progressBar(xBar, yBar, barWidth, 1, 0xcccccc, ecs.colors.blue, percent)
 
-    ecs.getOSApplication(thingsToDownload[app])
+    ecs.getOSApplication(thingsToDownload[i])
   end
 
   os.sleep(timing)
