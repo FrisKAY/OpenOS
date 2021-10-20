@@ -190,17 +190,14 @@ do
     {"Button", {ecs.colors.orange, 0x262626, "->"}}
   )
 
-  --УСТАНАВЛИВАЕМ НУЖНЫЙ ЯЗЫК
+  --УСТАНАВЛИВАЕМ НУЖНУЮ ВЕРСИЮ
   _G.OSVers = { version = data[1] }
 
   --Качаем язык
   ecs.info("auto", "auto", " ", " Installing version packages...")
 
-  applications = seri.unserialize(getFromGitHubSafely(GitHubUserUrl .. "FrisKAY/OpenOS/" .. _G.OSVers.version .. "/Applications.txt", "OpenOS-Archive/Applications.txt"))
+  versiondownloads = seri.unserialize(getFromGitHubSafely(GitHubUserUrl .. "FrisKAY/OpenOS/" .. _G.OSVers.version .. "/Applications.txt", "Applications.txt"))
   
-  --Ставим язык
-  lang = config.readAll(pathToLang)
-
 end
 
 ------------------------------ВЫБОР ДОПОВ------------------------------------
@@ -214,23 +211,23 @@ do
   image.draw(math.ceil(xSize / 2 - 30), yWindow + 2, imageLanguages)
 
   --кнопа
-  drawButton("Select Languages",false)
+  drawButton("Select Addons",false)
 
-  waitForClickOnButton("Select Languages")
+  waitForClickOnButton("Select Addons")
 
   local data = ecs.universalWindow("auto", "auto", 36, 0x262626, true,
     {"EmptyLine"},
-    {"CenterText", ecs.colors.orange, "Select Languages"},
+    {"CenterText", ecs.colors.orange, "Select Addons"},
     {"EmptyLine"},
     {"Select", 0xFFFFFF, ecs.colors.green, "Russian", "English"},
     {"EmptyLine"},
-    {"CenterText", ecs.colors.orange, "Change some OS properties"},
+    {"CenterText", ecs.colors.orange, "Download Addons packs"},
     {"EmptyLine"},
-    {"Switch", 0xF2B233, 0xffffff, 0xFFFFFF, "Download all Apps", false},
+    {"Switch", 0xF2B233, 0xffffff, 0xFFFFFF, "null", false},
     {"EmptyLine"},
-    {"Switch", 0xF2B233, 0xffffff, 0xFFFFFF, "Download wallpapers", false},
+    {"Switch", 0xF2B233, 0xffffff, 0xFFFFFF, "null", false},
     {"EmptyLine"},
-    {"Switch", 0xF2B233, 0xffffff, 0xFFFFFF, "Show help tips in OS", false},
+    {"Switch", 0xF2B233, 0xffffff, 0xFFFFFF, "null", false},
     {"EmptyLine"},
     {"Button", {ecs.colors.orange, 0x262626, "->"}}
   )
@@ -315,20 +312,6 @@ do
   end
 end
 
--------------------------- Подготавливаем файловую систему ----------------------------------
-
---Создаем стартовые пути и прочие мелочи чисто для эстетики
-local desktopPath = "MineOS/Desktop/"
-local dockPath = "OpenOS-Archive/Dock/"
-local applicationsPath = "MineOS/Applications/"
-local picturesPath = "MineOS/Pictures/"
-
-fs.remove(desktopPath)
-fs.remove(dockPath)
-
--- fs.makeDirectory(desktopPath .. "My files")
--- fs.makeDirectory(picturesPath)
-fs.makeDirectory(dockPath)
 
 --------------------------СТАДИЯ ЗАГРУЗКИ-----------------------------------
 
@@ -351,6 +334,18 @@ do
   os.sleep(timing)
 
   local thingsToDownload = {}
+  for i = 1, #versiondownloads do
+    if 
+      (versiondownloads[i].type == "Script")
+      or
+      (versiondownloads[i].forceDownload)
+    then
+      table.insert(thingsToDownload, versiondownloads[i])
+    end
+    --Подчищаем за собой, а то мусора нынче много
+    versiondownloads[i] = nil
+  end
+  
   for i = 1, #applications do
     if 
       (applications[i].type == "Wallpaper" and downloadWallpapers)
@@ -379,16 +374,6 @@ do
   os.sleep(timing)
 end
 
---Создаем базовые обои рабочего стола
-if downloadWallpapers then
-  ecs.createShortCut(desktopPath .. "Pictures.lnk", picturesPath)
-  ecs.createShortCut("OpenOS-Archive/Wallpaper.lnk", picturesPath .. "Nettle.pic")
-end
-
---Автозагрузка
-local file = io.open("autorun.lua", "w")
-file:write("local success, reason = pcall(loadfile(\"OS.lua\")); if not success then print(\"Ошибка: \" .. tostring(reason)) end")
-file:close()
 
 --------------------------СТАДИЯ ПЕРЕЗАГРУЗКИ КОМПА-----------------------------------
 
