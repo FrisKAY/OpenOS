@@ -101,6 +101,10 @@ local preLoadApi = {
   { paste = "FrisKAY/MineOS-Server/master/MineOS/Icons/OS_Logo.pic", path = "OpenOS-Archive/Icons/OS_Logo.pic" },
 }
 
+print("Downloading file list")
+applications = seri.unserialize(getFromGitHubSafely(GitHubUserUrl .. "FrisKAY/OpenOS/main/1.6.0/Applications.txt", "Applications.txt"))
+print(" ")
+
 for i = 1, #preLoadApi do
   print("Downloading \"" .. fs.name(preLoadApi[i].path) .. "\"")
   getFromGitHubSafely(GitHubUserUrl .. preLoadApi[i].paste, preLoadApi[i].path)
@@ -174,7 +178,7 @@ do
 
   clear()
 
-  image.draw(math.ceil(xSize / 2 - 30), yWindow + 2, imageLanguages)
+  image.draw(math.ceil(xSize / 2 - 30), yWindow + 2, imageDownloading)
 
   --кнопа
   drawButton("Select Version",false)
@@ -196,161 +200,9 @@ do
   --Качаем язык
   ecs.info("auto", "auto", " ", " Installing version packages...")
 
-  applications = getFromGitHubSafely(GitHubUserUrl .. "FrisKAY/OpenOS/main/" .. _G.OSVers.version .. "/Applications.txt", "Applications.txt")
+  applications = getFromGitHubSafely(GitHubUserUrl .. "FrisKAY/OpenOS/main/" .. _G.OSVers.version .. "/usr/misc/greetings.txt", "usr/misc/greetings.txt")
   
 end
-
-------------------------------ВЫБОР ДОПОВ------------------------------------
-
-local downloadWallpapers, showHelpTips, downloadAllApps = false, false, false
-
-do
-
-  clear()
-
-  image.draw(math.ceil(xSize / 2 - 30), yWindow + 2, imageLanguages)
-
-  --кнопа
-  drawButton("Select Languages",false)
-
-  waitForClickOnButton("Select Languages")
-
-  local data = ecs.universalWindow("auto", "auto", 36, 0x262626, true,
-    {"EmptyLine"},
-    {"CenterText", ecs.colors.orange, "Select Languages"},
-    {"EmptyLine"},
-    {"Select", 0xFFFFFF, ecs.colors.green, "Russian", "English"},
-    {"EmptyLine"},
-	{"Switch", 0xF2B233, 0xffffff, 0xFFFFFF, "Download Test", false},
-    {"EmptyLine"},
-    {"Button", {ecs.colors.orange, 0x262626, "->"}}
-  )
-
-  --УСТАНАВЛИВАЕМ НУЖНЫЙ ЯЗЫК
-  _G.OSSettings = { language = data[1] }
-  ecs.saveOSSettings()
-
-  --Качаем язык
-  ecs.info("auto", "auto", " ", " Installing language packages...")
-  local pathToLang = "OpenOS-Archive/Language.lang"
-  getFromGitHubSafely(GitHubUserUrl .. "FrisKAY/MineOS-Server/master/Installer/" .. _G.OSSettings.language .. ".lang", pathToLang)
-  getFromGitHubSafely(GitHubUserUrl .. "FrisKAY/MineOS-Server/master/MineOS/License/" .. _G.OSSettings.language .. ".txt", "OpenOS-Archive/License.txt")
-  
-  --Ставим язык
-  lang = config.readAll(pathToLang)
-
-end
-
-
-------------------------------СТАВИТЬ ЛИ ОСЬ------------------------------------
-
-do
-  clear()
-
-  image.draw(math.ceil(xSize / 2 - 15), yWindow + 2, imageOS)
-
-  --Текстик по центру
-  gpu.setBackground(ecs.windowColors.background)
-  gpu.setForeground(ecs.colors.gray)
-  ecs.centerText("x", yWindowEnd - 5 , lang.beginOsInstall)
-
-  --кнопа
-  drawButton("->",false)
-
-  waitForClickOnButton("->")
-
-end
-
-------------------------------ЛИЦ СОГЛАЩЕНЬКА------------------------------------------
-
-do
-  clear()
-  
-  --Откуда рисовать условия согл
-  local from = 1
-  local xText, yText, TextWidth, TextHeight = xWindow + 4, yWindow + 2, windowWidth - 8, windowHeight - 7
-
-  --Читаем файл с лиц соглл
-  local lines = {}
-  local file = io.open("OpenOS-Archive/License.txt", "r")
-  for line in file:lines() do
-    table.insert(lines, line)
-  end
-  file:close()
-
-  --Штуку рисуем
-  ecs.textField(xText, yText, TextWidth, TextHeight, lines, from, 0xffffff, 0x262626, 0x888888, ecs.colors.blue)
-
-  --Инфо рисуем
-  --ecs.centerText("x", yWindowEnd - 5 ,"Принимаете ли вы условия лицензионного соглашения?")
-
-  --кнопа
-  drawButton(lang.acceptLicense, false)
-
-  while true do
-    local e = { event.pull() }
-    if e[1] == "touch" then
-      if ecs.clickedAtArea(e[3], e[4], obj["buttons"][lang.acceptLicense][1], obj["buttons"][lang.acceptLicense][2], obj["buttons"][lang.acceptLicense][3], obj["buttons"][lang.acceptLicense][4]) then
-        drawButton(lang.acceptLicense, true)
-        os.sleep(timing)
-        break
-      end
-    elseif e[1] == "scroll" then
-      if e[5] == -1 then
-        if from < #lines then from = from + 1; ecs.textField(xText, yText, TextWidth, TextHeight, lines, from, 0xffffff, 0x262626, 0x888888, ecs.colors.blue) end
-      else
-        if from > 1 then from = from - 1; ecs.textField(xText, yText, TextWidth, TextHeight, lines, from, 0xffffff, 0x262626, 0x888888, ecs.colors.blue) end
-      end
-    end
-  end
-end
-
-
---------------------------СТАДИЯ ЗАГРУЗКИ-----------------------------------
-
-do
-  local barWidth = math.floor(windowWidth * 2 / 3)
-  local xBar = math.floor(xSize/2-barWidth/2)
-  local yBar = yWindowEnd - 3
-
-  local function drawInfo(x, y, info)
-    ecs.square(x, y, barWidth, 1, ecs.windowColors.background)
-    ecs.colorText(x, y, ecs.colors.gray, info)
-  end
-
-  ecs.blankWindow(xWindow,yWindow,windowWidth,windowHeight)
-
-  image.draw(math.floor(xSize / 2 - 33), yWindow + 2, imageDownloading)
-
-  ecs.colorTextWithBack(xBar, yBar - 1, ecs.colors.gray, ecs.windowColors.background, lang.osInstallation)
-  ecs.progressBar(xBar, yBar, barWidth, 1, 0xcccccc, ecs.colors.blue, 0)
-  os.sleep(timing)
-
- local thingsToDownload = {}
-  for i = 1, #applications do
-    if 
-      (applications[i].type == "Script" and downloadtest)
-      or
-      (applications[i].forceDownload)
-    then
-      table.insert(thingsToDownload, applications[i])
-    end
-    --Подчищаем за собой, а то мусора нынче много
-    applications[i] = nil
-  end
-
-  for app = 1, #thingsToDownload do
-    --ВСЕ ДЛЯ ГРАФОНА
-    drawInfo(xBar, yBar + 1, lang.downloading .. " " .. thingsToDownload[app]["name"])
-    local percent = app / #thingsToDownload * 100
-    ecs.progressBar(xBar, yBar, barWidth, 1, 0xcccccc, ecs.colors.blue, percent)
-
-    ecs.getOSApplication(thingsToDownload[i])
-  end
-
-  os.sleep(timing)
-end
-
 
 --------------------------СТАДИЯ ПЕРЕЗАГРУЗКИ КОМПА-----------------------------------
 
@@ -361,11 +213,11 @@ image.draw(math.floor(xSize/2 - 16), math.floor(ySize/2 - 11), imageOK)
 --Текстик по центру
 gpu.setBackground(ecs.windowColors.background)
 gpu.setForeground(ecs.colors.gray)
-ecs.centerText("x",yWindowEnd - 5, lang.needToRestart)
+ecs.centerText("x",yWindowEnd - 5, "Restart you PC")
 
 --Кнопа
-drawButton(lang.restart, false)
-waitForClickOnButton(lang.restart)
+drawButton("Restart", false)
+waitForClickOnButton("Restart")
 ecs.prepareToExit()
 
 computer.shutdown(true)
