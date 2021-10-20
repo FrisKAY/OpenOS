@@ -38,7 +38,7 @@ end
 
 local lang
 
-local applications
+local versiondownloads
 
 local padColor = 0x262626
 local installerScale = 1
@@ -334,9 +334,14 @@ do
   os.sleep(timing)
 
   local thingsToDownload = {}
+
   for i = 1, #versiondownloads do
     if 
-      (versiondownloads[i].type == "Script")
+      (versiondownloads[i].type == "Wallpaper" and downloadWallpapers)
+      or
+      (versiondownloads[i].type == "Application" and (downloadAllApps or versiondownloads[i].forceDownload))
+      or
+      (versiondownloads[i].type == "Library" or versiondownloads[i].type == "Icon")
       or
       (versiondownloads[i].forceDownload)
     then
@@ -344,22 +349,6 @@ do
     end
     --Подчищаем за собой, а то мусора нынче много
     versiondownloads[i] = nil
-  end
-  
-  for i = 1, #applications do
-    if 
-      (applications[i].type == "Wallpaper" and downloadWallpapers)
-      or
-      (applications[i].type == "Application" and (downloadAllApps or applications[i].forceDownload))
-      or
-      (applications[i].type == "Library" or applications[i].type == "Icon")
-      or
-      (applications[i].forceDownload)
-    then
-      table.insert(thingsToDownload, applications[i])
-    end
-    --Подчищаем за собой, а то мусора нынче много
-    applications[i] = nil
   end
 
   for app = 1, #thingsToDownload do
